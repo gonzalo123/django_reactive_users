@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Example{% endblock %}
+{% block header_text %}Hello <span id="name">{{ request.user.first_name }}</span>{% endblock %}
+
+{% block extra_body %}
+  <script>
+    var ws_scheme = window.location.protocol === "https:" ? "wss" : "ws"
+    var ws_path = ws_scheme + '://' + window.location.host + "/ws/{{ request.user.username }}"
+    var ws = new ReconnectingWebSocket(ws_path)
+    var render = function (key, value) {
+      document.querySelector(`#${key}`).innerHTML = value
+    }
+    ws.onmessage = function (e) {
+      const data = JSON.parse(e.data);
+      render('name', data.first_name)
+    }
+
+    ws.onopen = function () {
+      console.log('Connected')
+    };
+  </script>
+{% endblock %}

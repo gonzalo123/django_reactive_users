@@ -1,0 +1,56 @@
+version: '3.4'
+
+services:
+  redis:
+    image: redis
+  master:
+    image: reactive_master:latest
+    command: python manage.py runserver 0.0.0.0:8001
+    build:
+      context: ./master
+      dockerfile: Dockerfile
+    depends_on:
+      - "redis"
+    ports:
+      - 8001:8001
+    environment:
+      REDIS_HOST: redis
+  celery:
+    image: reactive_master:latest
+    command: celery -A master worker --uid=nobody --gid=nogroup
+    depends_on:
+      - "redis"
+      - "master"
+    environment:
+      REDIS_HOST: redis
+      SNS_REACTIVE_TABLE_ARN: ${SNS_REACTIVE_TABLE_ARN}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+  client:
+    image: reactive_client:latest
+    command: python manage.py runserver 0.0.0.0:8000
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    depends_on:
+      - "redis"
+    ports:
+      - 8000:8000
+    environment:
+      REDIS_HOST: redis
+  listener:
+    image: reactive_client:latest
+    command: python manage.py listener
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    depends_on:
+      - "redis"
+    environment:
+      REDIS_HOST: redis
+      SQS_REACTIVE_TABLES: ${SQS_REACTIVE_TABLES}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
