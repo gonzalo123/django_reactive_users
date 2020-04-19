@@ -351,4 +351,4 @@ services:
 
 And that's all. Here a working example of the prototype in action:
 
-https://www.youtube.com/watch?v=HTeou98z7fw
+[![Alt text](https://img.youtube.com/vi/HTeou98z7fw/0.jpg)](https://www.youtube.com/watch?v=HTeou98z7fw)
