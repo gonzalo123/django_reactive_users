@@ -8,6 +8,7 @@ import json
 
 logger = logging.getLogger(__name__)
 
+
 class Actions:
     INSERT = 0
     UPDATE = 1
